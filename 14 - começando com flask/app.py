@@ -1,10 +1,9 @@
-from flask import Flask, url_for, render_template, request
+from flask import Flask, url_for, render_template, request, redirect
 from markupsafe import escape
 
 app = Flask(__name__)
 
 @app.route('/')
-@app.route('/<nome>')
 def index(nome=None):
     return render_template('index.html', nome=nome)
 
@@ -32,11 +31,15 @@ def login():
 
             email = request.form['email']
 
-            return render_template('home.html', email=email)
+            return redirect(url_for('home', email=email))
         else:
             error = 'Login inválido'
 
     return render_template('login.html', error=error)
+
+@app.route('/home/<email>')
+def home(email):
+    return render_template('home.html', email=email)
 
 @app.route('/user/<string:nome>')
 def profile(nome):
@@ -54,6 +57,10 @@ def projects():
 def about():
     return 'The about page'
 
+@app.errorhandler(404)
+def error_page(error):
+    return render_template('404.html'), 404
+
 # with app.test_request_context():
 #     print(url_for('index'))
 #     print(url_for('profile', nome='John Doe'))
@@ -63,6 +70,6 @@ def about():
 #     print(url_for('static', filename='style.css'))
 #     print()
 
-with app.test_request_context('/hello', method='POST'):
-    print(request.path)
-    print(request.method)
+# with app.test_request_context('/hello', method='POST'):
+#     print(request.path)
+#     print(request.method)
