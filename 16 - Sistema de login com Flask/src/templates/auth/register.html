@@ -1,0 +1,58 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Criar conta{% endblock %}
+
+{% block content %}
+    <main class="align-items-center justify-content-center gap-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('auth.register') }}" class="shadow rounded-4 d-flex flex-column gap-3 p-4 w-50">
+            <h3>Criar conta</h3>
+
+            <div>
+                <label for="name" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Edson Arantes do Nascimento">
+            </div>
+
+            <div>
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="email@email.com">
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="password" class="form-label">Senha</label>
+                    <div class="d-flex align-items-center ">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Senha">
+                        <button type="button" class="btn-toggle-visibility">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col">
+                    <p>A senha deve ter pelo menos:</p>
+
+                    <ul>
+                        <li>8 caracteres</li>
+                        <li>1 letra maiúscula</li>
+                        <li>1 letra minúscula</li>
+                        <li>1 número</li>
+                        <li>1 cartere especial</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Criar conta</button>
+            </div>
+        </form>
+    </main>
+{% endblock %}

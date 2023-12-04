@@ -1,0 +1,16 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Início{% endblock %}
+
+{% block content %}
+    <main class="d-flex flex-column gap-5">
+        {% if not user %}
+            <h1>Olá, visitante</h1>
+            <p>Você não está logado, <a href="{{ url_for('auth.login') }}">Entre</a> ou <a href="{{ url_for('auth.register') }}">Crie uma conta</a></p>
+        {% else %}
+            <h1>Olá, {{ user.name }}</h1>
+
+            <p><a href="{{ url_for('auth.logout') }}">Sair</a></p>
+        {% endif %}
+    </main>
+{% endblock %}
