@@ -9,10 +9,12 @@ from flask import (
     url_for
 )
 from werkzeug.security import check_password_hash
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 from src.model.user import User
+from src.db import db
 
-
-users: list[User] = []
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates')
 
@@ -45,13 +47,19 @@ def login():
 
         error = None
 
-        for user in users:
-            if user.email == email and check_password_hash(user.password, password):
+        with Session(db) as db_session:
+            try:
+                user = db_session.scalar(select(User).filter_by(email=email))
+
+                if user is None or not check_password_hash(user.password, password):
+                    raise Exception('Email ou senha inválidos')
+
+            except Exception as e:
+                error = str(e)
+            else:
                 session['logged_user'] = user.to_json()
 
                 return redirect(url_for('index.index'))
-        else:
-            error = 'Email ou senha inválidos'
 
         flash(error, 'danger')
 
@@ -71,23 +79,25 @@ def register():
             user = User(name=name, email=email, password=password)
         except Exception as e:
             error = str(e)
+        else:
+            with Session(db) as db_session:
+                db_session.add(user)
 
+                try:
+                    db_session.commit()
+                except IntegrityError as e:
+                    error = 'Email já cadastrado'
+
+        if error:
             flash(error, 'danger')
 
             return render_template('auth/register.html')
         else:
-            users.append(user)
             flash('Conta criada', 'success')
-            print()
-            print()
-            print()
-            print(users)
-            print()
-            print()
-            print()
             return redirect(url_for('auth.login'))
 
     return render_template('auth/register.html')
+
 @auth_bp.get('/logout')
 @login_required
 def logout():
